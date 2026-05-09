@@ -1,0 +1,26 @@
+{
+  "name": "chatapp",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000c\u0000h\u0000a\u0000t\u0000a\u0000p\u0000p\u0000\r\u0000 \u0000",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jack82-ux/chatapp.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/jack82-ux/chatapp/issues"
+  },
+  "homepage": "https://github.com/jack82-ux/chatapp#readme",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.2.1"
+  }
+}
