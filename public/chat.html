@@ -1,3 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Global Chat</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial;
+      background: #0f172a;
+      color: white;
+    }
+
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .header {
+      padding: 15px;
+      background: #1e293b;
+      font-size: 18px;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .user {
+      font-size: 12px;
+      opacity: 0.7;
+    }
+
+    .chat-box {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+    }
+
+    .message {
+      background: #1e293b;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 10px;
+      max-width: 60%;
+    }
+
+    .message.me {
+      background: #3b82f6;
+      margin-left: auto;
+    }
+
+    .username {
+      font-size: 12px;
+      opacity: 0.7;
+      margin-bottom: 3px;
+    }
+
+    .input-area {
+      display: flex;
+      padding: 10px;
+      background: #1e293b;
+    }
+
+    input {
+      flex: 1;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      outline: none;
+    }
+
+    button {
+      margin-left: 10px;
+      padding: 10px 15px;
+      border: none;
+      background: #3b82f6;
+      color: white;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="header">
+    Global Chat
+    <span class="user">Logged in as: <b id="me"></b></span>
+  </div>
+
+  <div id="chatBox" class="chat-box"></div>
+
+  <div class="input-area">
+    <input id="messageInput" placeholder="Type a message..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+</div>
+
 <script>
 
 const username = localStorage.getItem("username");
@@ -6,50 +109,49 @@ if (!username) {
   window.location.href = "login.html";
 }
 
-const chatBox =
-  document.getElementById("chatBox");
+document.getElementById("me").innerText = username;
+
+const chatBox = document.getElementById("chatBox");
 
 async function loadMessages() {
+  try {
+    const response = await fetch("https://chatapp-4blj.onrender.com/messages");
+    if (!response.ok) return;
 
-  const response =
-    await fetch("/messages");
+    const messages = await response.json();
 
-  const messages =
-    await response.json();
+    chatBox.innerHTML = "";
 
-  chatBox.innerHTML = "";
+    messages.forEach(msg => {
+      const div = document.createElement("div");
+      div.classList.add("message");
 
-  messages.forEach(msg => {
+      if (msg.username === username) {
+        div.classList.add("me");
+      }
 
-    const div =
-      document.createElement("div");
+      div.innerHTML = `
+        <div class="username">${msg.username}</div>
+        <div>${msg.text}</div>
+      `;
 
-    div.classList.add("message");
+      chatBox.appendChild(div);
+    });
 
-    div.innerHTML = `
-      <div class="username">
-        ${msg.username}
-      </div>
-      <div>${msg.text}</div>
-    `;
+    chatBox.scrollTop = chatBox.scrollHeight;
 
-    chatBox.appendChild(div);
-  });
-
-  chatBox.scrollTop =
-    chatBox.scrollHeight;
+  } catch (err) {
+    console.log("Load error:", err);
+  }
 }
 
 async function sendMessage() {
-
-  const input =
-    document.getElementById("messageInput");
-
+  const input = document.getElementById("messageInput");
   const text = input.value;
 
   if (text.trim() === "") return;
 
-  await fetch("/messages", {
+  await fetch("https://chatapp-4blj.onrender.com/messages", {
     method: "POST",
     headers: {
       "Content-Type": "application/json"
@@ -61,12 +163,19 @@ async function sendMessage() {
   });
 
   input.value = "";
-
   loadMessages();
 }
 
-loadMessages();
+// Enter key support
+document.getElementById("messageInput")
+  .addEventListener("keypress", function (e) {
+    if (e.key === "Enter") sendMessage();
+  });
 
-setInterval(loadMessages, 1000);
+loadMessages();
+setInterval(loadMessages, 2000);
 
 </script>
+
+</body>
+</html>
