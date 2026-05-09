@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+
+  <!-- FIX: mobile keyboard + no zoom issues -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+
   <title>Global Chat</title>
 
   <style>
@@ -11,6 +14,7 @@
       font-family: Arial;
       background: #0f172a;
       color: white;
+      -webkit-tap-highlight-color: transparent;
     }
 
     .app {
@@ -36,6 +40,7 @@
       flex: 1;
       padding: 15px;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
     }
 
     .message {
@@ -43,7 +48,8 @@
       padding: 10px;
       margin-bottom: 10px;
       border-radius: 10px;
-      max-width: 60%;
+      max-width: 70%;
+      word-wrap: break-word;
     }
 
     .message.me {
@@ -61,19 +67,23 @@
       display: flex;
       padding: 10px;
       background: #1e293b;
+      position: relative;
+      z-index: 10;
     }
 
+    /* 🔥 CRITICAL FIX for mobile keyboard */
     input {
       flex: 1;
-      padding: 10px;
+      padding: 12px;
       border: none;
       border-radius: 8px;
       outline: none;
+      font-size: 16px; /* IMPORTANT for iOS keyboard */
     }
 
     button {
       margin-left: 10px;
-      padding: 10px 15px;
+      padding: 12px 15px;
       border: none;
       background: #3b82f6;
       color: white;
@@ -96,7 +106,7 @@
 
   <div class="input-area">
     <input id="messageInput" placeholder="Type a message..." />
-    <button onclick="sendMessage()">Send</button>
+    <button type="button" onclick="sendMessage()">Send</button>
   </div>
 
 </div>
@@ -112,6 +122,7 @@ if (!username) {
 document.getElementById("me").innerText = username;
 
 const chatBox = document.getElementById("chatBox");
+const input = document.getElementById("messageInput");
 
 async function loadMessages() {
   try {
@@ -146,7 +157,6 @@ async function loadMessages() {
 }
 
 async function sendMessage() {
-  const input = document.getElementById("messageInput");
   const text = input.value;
 
   if (text.trim() === "") return;
@@ -166,12 +176,17 @@ async function sendMessage() {
   loadMessages();
 }
 
-// Enter key support
-document.getElementById("messageInput")
-  .addEventListener("keypress", function (e) {
-    if (e.key === "Enter") sendMessage();
-  });
+// 🔥 FIX: mobile keyboard always opens
+input.addEventListener("touchstart", () => {
+  input.focus();
+});
 
+// Enter key support
+input.addEventListener("keypress", function (e) {
+  if (e.key === "Enter") sendMessage();
+});
+
+// init
 loadMessages();
 setInterval(loadMessages, 2000);
 
