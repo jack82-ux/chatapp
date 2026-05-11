@@ -17,11 +17,14 @@
       -webkit-tap-highlight-color: transparent;
     }
 
-    .app {
-      display: flex;
-      flex-direction: column;
-      height: 100vh;
-    }
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  box-sizing: border-box;
+}
 
     .header {
       padding: 15px;
